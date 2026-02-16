@@ -1,3 +1,27 @@
+class Cell:
+    def __init__(
+        self,
+        value: int,
+        x: int | None = None,
+        y: int | None = None
+    ) -> None:
+        """
+        Defines the Cell class.
+        """
+        self.value = value
+        self.x = x
+        self.y = y
+
+    
+    def __repr__(
+        self
+        ) -> str:
+        """
+        Returns the string representation of the cell.
+        """
+        return str(self.value)
+
+
 class Sudoku:
     def __init__(
         self
@@ -5,12 +29,12 @@ class Sudoku:
         """
         Defines the Sudoku class.
         """
-        self.board = [[0 for _ in range(9)] for _ in range(9)]
+        self.board = [[Cell(0) for _ in range(9)] for _ in range(9)]
 
 
     def initialize(
         self, 
-        mode: str ='production'
+        mode: str = 'production'
         ) -> None:
         """
         Initializes the Sudoku board based on the specified mode.
@@ -28,15 +52,15 @@ class Sudoku:
         
         elif mode == 'debug':
             self.board = [
-                [0, 0, 0, 0, 1, 7, 0, 0, 3],
-                [0, 0, 1, 2, 0, 0, 0, 0, 7],
-                [2, 0, 0, 0, 0, 0, 5, 6, 0],
-                [1, 3, 0, 0, 7, 0, 9, 0, 8],
-                [0, 0, 0, 0, 0, 8, 0, 0, 0],
-                [7, 0, 0, 0, 0, 0, 0, 4, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 8, 0, 0, 4, 3, 6, 0, 0],
-                [0, 0, 4, 9, 0, 2, 0, 0, 0]
+                [Cell(0), Cell(0), Cell(0), Cell(0), Cell(1), Cell(7), Cell(0), Cell(0), Cell(3)],
+                [Cell(0), Cell(0), Cell(1), Cell(2), Cell(0), Cell(0), Cell(0), Cell(0), Cell(7)],
+                [Cell(2), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(5), Cell(6), Cell(0)],
+                [Cell(1), Cell(3), Cell(0), Cell(0), Cell(7), Cell(0), Cell(9), Cell(0), Cell(8)],
+                [Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(8), Cell(0), Cell(0), Cell(0)],
+                [Cell(7), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(4), Cell(0)],
+                [Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0)],
+                [Cell(0), Cell(8), Cell(0), Cell(0), Cell(4), Cell(3), Cell(6), Cell(0), Cell(0)],
+                [Cell(0), Cell(0), Cell(4), Cell(9), Cell(0), Cell(2), Cell(0), Cell(0), Cell(0)]
             ]
 
 
@@ -53,9 +77,67 @@ class Sudoku:
             for j in range(9):
                 if j % 3 == 0 and j != 0:
                     print("| ", end='')
-                print(' ' if self.board[i][j] == 0 else self.board[i][j], end=' ')
+                print(' ' if self.board[i][j].value == 0 else self.board[i][j].value, end=' ')
             print()
         print()
+
+
+    def get_row(
+        self,
+        x: int,
+        ret_cells: bool = False
+    ) -> list[int]:
+        """
+        Fetches the column of the given cell.
+
+        Args:
+            x (int): The row of the cell.
+
+        Returns:
+            list[int]: The column of the cell.
+        """
+        if ret_cells: return [self.board[x][i] for i in range(9)]
+        return [self.board[x][i].value for i in range(9)]
+
+
+    def get_col(
+        self,
+        y: int,
+        ret_cells: bool = False
+    ) -> list[int]:
+        """
+        Fetches the column of the given cell.
+
+        Args:
+            y (int): The column of the cell.
+
+        Returns:
+            list[int]: The column of the cell.
+        """
+        if ret_cells: return [self.board[i][y] for i in range(9)]
+        return [self.board[i][y].value for i in range(9)]
+
+
+    def get_grid(
+        self,
+        x: int,
+        y: int,
+        ret_cells: bool = False
+    ) -> list[int]:
+        """
+        Fetches the 3x3 grid of the given cell.
+
+        Args:
+            x (int): The row of the cell.
+            y (int): The column of the cell.
+
+        Returns:
+            list[int]: The 3x3 grid of the cell.
+        """
+        grid_start_row = (x // 3) * 3
+        grid_start_col = (y // 3) * 3
+        if ret_cells: return [self.board[i][j] for i in range(grid_start_row, grid_start_row + 3) for j in range(grid_start_col, grid_start_col + 3)]
+        return [self.board[i][j].value for i in range(grid_start_row, grid_start_row + 3) for j in range(grid_start_col, grid_start_col + 3)]
 
     
     def is_valid(
@@ -69,18 +151,17 @@ class Sudoku:
         """
         for i in range(9):
             for j in range(9):
-                if self.board[i][j] != 0:
-                    current = self.board[i][j]
-                    for k in range(9):
-                        if self.board[i][k] == current and k != j:
-                            return False
-                        if self.board[k][j] == current and k != i:
-                            return False
-
-                    grid_start = ((i // 3) * 3, (j // 3) * 3)
-
-                    
-
-
+                if self.board[i][j].value != 0:
+                    current = self.board[i][j].value
+                    if self.get_row(i).count(current) > 1:
+                        print(f"Invalid board: Duplicate number {current} in row {i}\n")
+                        return False
+                    if self.get_col(j).count(current) > 1:
+                        print(f"Invalid board: Duplicate number {current} in column {j}\n")
+                        return False
+                    if self.get_grid(i, j).count(current) > 1:
+                        print(f"Invalid board: Duplicate number {current} in 3x3 grid at ({i // 3}, {j // 3})\n")
+                        return False
         
+        print("Valid board\n")
         return True
