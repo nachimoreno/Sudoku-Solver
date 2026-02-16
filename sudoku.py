@@ -11,6 +11,7 @@ class Cell:
         self.value = value
         self.x = x
         self.y = y
+        self.candidates = []
 
     
     def __repr__(
@@ -100,7 +101,7 @@ class Sudoku:
         return [self.board[x][i].value for i in range(9)]
 
 
-    def get_col(
+    def get_column(
         self,
         y: int,
         ret_cells: bool = False
@@ -141,10 +142,14 @@ class Sudoku:
 
     
     def is_valid(
-        self
+        self,
+        verbose: bool = False
         ) -> bool:
         """
         Checks if the Sudoku board is valid.
+
+        Args:
+            verbose (bool): Whether to print verbose output.
 
         Returns:
             bool: True if the board is valid, False otherwise.
@@ -154,14 +159,14 @@ class Sudoku:
                 if self.board[i][j].value != 0:
                     current = self.board[i][j].value
                     if self.get_row(i).count(current) > 1:
-                        print(f"Invalid board: Duplicate number {current} in row {i}\n")
+                        if verbose: print(f"Invalid board: Duplicate number {current} in row {i}\n")
                         return False
-                    if self.get_col(j).count(current) > 1:
-                        print(f"Invalid board: Duplicate number {current} in column {j}\n")
+                    if self.get_column(j).count(current) > 1:
+                        if verbose: print(f"Invalid board: Duplicate number {current} in column {j}\n")
                         return False
                     if self.get_grid(i, j).count(current) > 1:
-                        print(f"Invalid board: Duplicate number {current} in 3x3 grid at ({i // 3}, {j // 3})\n")
+                        if verbose: print(f"Invalid board: Duplicate number {current} in 3x3 grid at ({i // 3}, {j // 3})\n")
                         return False
         
-        print("Valid board\n")
+        if verbose: print("Valid board\n")
         return True
