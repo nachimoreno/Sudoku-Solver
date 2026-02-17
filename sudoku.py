@@ -1,16 +1,12 @@
 class Cell:
     def __init__(
         self,
-        value: int,
-        x: int | None = None,
-        y: int | None = None
+        value: int
     ) -> None:
         """
         Defines the Cell class.
         """
         self.value = value
-        self.x = x
-        self.y = y
         self.candidates = []
 
     

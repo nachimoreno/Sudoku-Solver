@@ -1,7 +1,16 @@
 import sudoku as sk
 
 class Solver:
-    def __init__(self, sudoku: sk.Sudoku):
+    def __init__(
+        self,
+        sudoku: sk.Sudoku
+        ) -> None:
+        """
+        Initializes the Solver class.
+
+        Args:
+            sudoku (sk.Sudoku): The Sudoku board to solve.
+        """
         self.sudoku = sudoku
 
     def populate_candidates(
@@ -55,7 +64,61 @@ class Solver:
                 for k in row:
                     if k in current_cell.candidates:
                         current_cell.candidates.remove(k)
-                if verbose: print(f"Current Cell's Candidates: {current_cell.candidates}\n")    
+                if verbose: print(f"Current Cell's Candidates: {current_cell.candidates}\n")
+
+
+    def solve_naked_singles(
+        self,
+        verbose: bool = False
+        ) -> None:
+        """
+        Checks if any candidate is the only remaining candidate for a cell, and then places it.
+
+        Args:
+            verbose (bool): Whether to print verbose output.
+        """
+        for i in range(9):
+            for j in range(9):
+                current_cell = self.sudoku.board[i][j]
+
+                # Skip check if cell is not empty
+                if current_cell.value != 0:
+                    continue
+
+                if len(current_cell.candidates) == 1:
+                    current_cell.value = current_cell.candidates[0]
+                    current_cell.candidates = []
+                    if verbose: print(f"Naked Single: Placed {current_cell.value} in cell ({i}, {j})")
+
+        
+        def solve_hidden_singles(
+            self,
+            verbose: bool = False
+        ) -> None:
+            """
+            Checks if any number can only have one possible position in a row, column, or grid, and if so, place it.
+
+            Args:
+                verbose (bool): Whether to print verbose output.
+            """
+
+            candidate_counts = {i: 0 for i in range(1, 10)}
+
+
+
+
+        def solve_naked_pairs(): pass
+
+
+        def solve_naked_triples(): pass
+
+
+        def solve_hidden_pairs(): pass
+
+
+        def solve_hidden_triples(): pass
+
+
 
 game = sk.Sudoku()
 game.initialize(mode='debug')
@@ -63,3 +126,5 @@ game.print_board()
 game.is_valid(verbose=True)
 solver = Solver(game)
 solver.populate_candidates()
+solver.replace_naked_singles()
+game.print_board()
