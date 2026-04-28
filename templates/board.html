@@ -144,6 +144,74 @@
                       padding: 8px 18px; border-radius: 7px;
                       font-size: 0.85rem; font-weight: 500; }
 
+    /* ── Help button ───────────────────────────────────── */
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-row .solver-btn { flex: 1; }
+
+    .btn-help {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #64748b;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-help:hover { background: #cbd5e1; color: #1a1a2e; }
+
+    /* ── How does it work card ─────────────────────────── */
+    .help-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .help-close {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #64748b;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background 0.15s;
+    }
+
+    .help-close:hover { background: #cbd5e1; color: #1a1a2e; }
+
+    .help-panel {
+      width: 100%;
+      max-width: 900px;
+      margin-top: 20px;
+    }
+
+    #help-text {
+      font-size: 0.8rem;
+      line-height: 1.65;
+      color: #444;
+    }
+
     /* ── Status ────────────────────────────────────────── */
     #status-header {
       font-size: 0.85rem;
@@ -195,8 +263,11 @@
       <h3>Placers</h3>
       <div class="btn-group">
         {% for s in placers %}
-        <button class="btn-placer solver-btn" data-key="{{ s.key }}"
-                onclick="runSolver('{{ s.key }}')">{{ s.label }}</button>
+        <div class="btn-row">
+          <button class="btn-placer solver-btn" data-key="{{ s.key }}"
+                  onclick="runSolver('{{ s.key }}')">{{ s.label }}</button>
+          <button class="btn-help" onclick="showHelp('{{ s.key }}')" title="How does {{ s.label }} work?">?</button>
+        </div>
         {% endfor %}
       </div>
     </div>
@@ -205,8 +276,11 @@
       <h3>Eliminators</h3>
       <div class="btn-group">
         {% for s in eliminators %}
-        <button class="btn-eliminator solver-btn" data-key="{{ s.key }}"
-                onclick="runSolver('{{ s.key }}')">{{ s.label }}</button>
+        <div class="btn-row">
+          <button class="btn-eliminator solver-btn" data-key="{{ s.key }}"
+                  onclick="runSolver('{{ s.key }}')">{{ s.label }}</button>
+          <button class="btn-help" onclick="showHelp('{{ s.key }}')" title="How does {{ s.label }} work?">?</button>
+        </div>
         {% endfor %}
       </div>
     </div>
@@ -219,6 +293,14 @@
     <div id="solved-banner">✓ Puzzle solved!</div>
 
   </div>
+</div>
+
+<div class="card help-panel">
+  <div class="help-card-header">
+    <h3>How does it work?</h3>
+    <button class="help-close" id="help-close" onclick="closeHelp()" style="display:none" title="Back to overview">✕</button>
+  </div>
+  <div id="help-text"></div>
 </div>
 
 <script>
@@ -360,9 +442,151 @@
     }
   }
 
+  // ── Help panel ───────────────────────────────────────────────────────────
+
+  const DEFAULT_HELP_TEXT =
+    'This is an automatic Sudoku solver. Use the buttons above to apply ' +
+    'solving techniques one step at a time — each technique either places a ' +
+    'digit directly into a cell or eliminates candidates to narrow down ' +
+    'possibilities. Click the <strong>?</strong> button next to any technique ' +
+    'to learn how it works.';
+
+  const HELP_TEXTS = {
+    'NakedSingleSolver':
+      '<strong>Naked Singles</strong><br><br>' +
+      'A naked single is the simplest solving technique. When a cell has only ' +
+      'one remaining candidate, that digit must go there — all other digits are ' +
+      'already present in the cell\'s row, column, or 3×3 box, leaving exactly ' +
+      'one possibility. The solver scans every empty cell and places the value ' +
+      'wherever only one candidate remains.',
+
+    'HiddenSingleSolver':
+      '<strong>Hidden Singles</strong><br><br>' +
+      'A hidden single occurs when a digit can only fit in one cell within a ' +
+      'row, column, or 3×3 box — even if that cell appears to have multiple ' +
+      'candidates. The digit is "hidden" among others, but every other position ' +
+      'in the unit is already ruled out. The solver checks each unit for digits ' +
+      'that appear in exactly one candidate list and places them there.',
+
+    'PointingPairsSolver':
+      '<strong>Pointing Pairs</strong><br><br>' +
+      'Within a 3×3 box, if a candidate digit only appears in cells that all ' +
+      'share the same row or column, it must end up in one of those cells. That ' +
+      'means the digit can be safely eliminated from every other cell in that ' +
+      'row or column that lies outside the box. This works for 2-cell pairs and ' +
+      '3-cell triples alike.',
+
+    'NakedPairSolver':
+      '<strong>Naked Pairs</strong><br><br>' +
+      'When exactly two cells in the same row, column, or 3×3 box each contain ' +
+      'the same two candidates — and only those two — those two digits must ' +
+      'occupy those two cells in some order. Every other cell in the shared unit ' +
+      'can therefore have both of those candidates removed.',
+
+    'NakedTripleSolver':
+      '<strong>Naked Triples</strong><br><br>' +
+      'Like Naked Pairs but extended to three cells. If three cells in a unit ' +
+      'collectively contain only three distinct candidates (each cell holding ' +
+      '2 or 3 of those three digits), those digits are locked inside those ' +
+      'three cells. All other cells in the same unit can have those three ' +
+      'candidates eliminated.',
+
+    'HiddenPairSolver':
+      '<strong>Hidden Pairs</strong><br><br>' +
+      'If two digits appear as candidates in only two cells within a unit ' +
+      '(row, column, or box), those two digits must occupy those two cells ' +
+      'in some order — even though the cells may appear to have many candidates. ' +
+      'All other candidates can be removed from those two cells, leaving them ' +
+      'as a naked pair.',
+
+    'HiddenTripleSolver':
+      '<strong>Hidden Triples</strong><br><br>' +
+      'Like Hidden Pairs extended to three digits. If three digits are ' +
+      'collectively confined to only three cells within a unit, those three ' +
+      'cells must contain those three digits. Every other candidate in those ' +
+      'three cells can be eliminated.',
+
+    'NakedQuadSolver':
+      '<strong>Naked Quads</strong><br><br>' +
+      'When four cells in a unit collectively contain only four distinct ' +
+      'candidates (each cell holding between 2 and 4 of those digits), ' +
+      'those four digits are locked into those four cells. All other cells ' +
+      'in the same unit can have those four candidates removed.',
+
+    'BoxLineReductionSolver':
+      '<strong>Box/Line Reduction</strong><br><br>' +
+      'The complement of Pointing Pairs. If a candidate in a row or column ' +
+      'only appears inside a single 3×3 box, that digit is claimed by the ' +
+      'box — it can be eliminated from all other cells in that box that are ' +
+      'not part of the original row or column.',
+
+    'XWingSolver':
+      '<strong>X-Wing</strong><br><br>' +
+      'When a candidate appears in exactly two cells in each of two rows, and ' +
+      'both rows share the same two columns, the digit must land in one of ' +
+      'those two columns — so it can be eliminated from everywhere else in ' +
+      'those two columns. The same logic applies with rows and columns swapped.',
+
+    'SimpleColoringSolver':
+      '<strong>Simple Coloring</strong><br><br>' +
+      'Chains conjugate pairs — units where a candidate appears exactly twice — ' +
+      'and assigns alternating colors. One color must be correct, the other wrong. ' +
+      'If two same-color cells share a unit, that color is impossible and all its ' +
+      'cells are eliminated. Any cell outside the chain that sees both colors can ' +
+      'also have the candidate removed.',
+
+    'SkyscraperSolver':
+      '<strong>Skyscraper</strong><br><br>' +
+      'Two rows each have exactly two occurrences of a candidate and share ' +
+      'exactly one column (the "leg"). The two non-shared cells are the tips. ' +
+      'One of the tips must contain the digit, so any cell that sees both tips ' +
+      'can have the candidate eliminated. The same logic applies column-wise.',
+
+    'SwordfishSolver':
+      '<strong>Swordfish</strong><br><br>' +
+      'An extension of X-Wing to three rows. If a candidate appears 2–3 times ' +
+      'in each of three rows and their combined column positions cover exactly ' +
+      'three columns, the digit must land in those columns — so it can be ' +
+      'eliminated from those columns in all other rows. Also applies with rows ' +
+      'and columns swapped.',
+
+    'XYWingSolver':
+      '<strong>XY-Wing</strong><br><br>' +
+      'A pivot cell with two candidates {X, Y} sees one wing with {X, Z} and ' +
+      'another wing with {Y, Z}. Whatever value the pivot takes, Z is forced ' +
+      'into one of the wings — so Z can be eliminated from any cell that sees ' +
+      'both wings simultaneously.',
+
+    'XYZWingSolver':
+      '<strong>XYZ-Wing</strong><br><br>' +
+      'Like XY-Wing but the pivot has three candidates {X, Y, Z} instead of ' +
+      'two. The pivot sees wing {X, Z} and wing {Y, Z}. Because the pivot ' +
+      'itself could hold Z, the elimination is tighter: Z can only be removed ' +
+      'from cells that see all three of the pivot, wing1, and wing2.',
+
+    'UniqueRectangleSolver':
+      '<strong>Unique Rectangle</strong><br><br>' +
+      'Relies on the guarantee that a valid puzzle has exactly one solution. ' +
+      'If three corners of a 2×2 rectangle (spanning at least two boxes) contain ' +
+      'only the same two candidates, placing either digit in the fourth corner ' +
+      'would create a deadly pattern with two solutions. Both candidates are ' +
+      'therefore eliminated from the fourth corner.',
+  };
+
+  function showHelp(key) {
+    document.getElementById('help-text').innerHTML = HELP_TEXTS[key] || DEFAULT_HELP_TEXT;
+    document.getElementById('help-close').style.display = 'flex';
+  }
+
+  function closeHelp() {
+    document.getElementById('help-text').innerHTML = DEFAULT_HELP_TEXT;
+    document.getElementById('help-close').style.display = 'none';
+  }
+
   // ── Init ─────────────────────────────────────────────────────────────────
 
   renderBoard({{ board_json | tojson }}, []);
+  document.getElementById('help-text').innerHTML = DEFAULT_HELP_TEXT;
 </script>
 
 </body>

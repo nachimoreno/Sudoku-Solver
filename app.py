@@ -8,6 +8,10 @@ from src.sudoku import Sudoku
 from src.solver import (
     Solver, NakedSingleSolver, HiddenSingleSolver,
     PointingPairsSolver, NakedPairSolver, NakedTripleSolver,
+    HiddenPairSolver, HiddenTripleSolver, NakedQuadSolver,
+    BoxLineReductionSolver, XWingSolver, SimpleColoringSolver,
+    SkyscraperSolver, SwordfishSolver, XYWingSolver,
+    XYZWingSolver, UniqueRectangleSolver,
 )
 
 app = Flask(__name__)
@@ -17,9 +21,20 @@ PLACERS = [
     {"key": "HiddenSingleSolver", "label": "Hidden Singles"},
 ]
 ELIMINATORS = [
-    {"key": "PointingPairsSolver", "label": "Pointing Pairs"},
-    {"key": "NakedPairSolver",     "label": "Naked Pairs"},
-    {"key": "NakedTripleSolver",   "label": "Naked Triples"},
+    {"key": "PointingPairsSolver",    "label": "Pointing Pairs"},
+    {"key": "NakedPairSolver",        "label": "Naked Pairs"},
+    {"key": "NakedTripleSolver",      "label": "Naked Triples"},
+    {"key": "HiddenPairSolver",       "label": "Hidden Pairs"},
+    {"key": "HiddenTripleSolver",     "label": "Hidden Triples"},
+    {"key": "NakedQuadSolver",        "label": "Naked Quads"},
+    {"key": "BoxLineReductionSolver", "label": "Box/Line Reduction"},
+    {"key": "XWingSolver",            "label": "X-Wing"},
+    {"key": "SimpleColoringSolver",   "label": "Simple Coloring"},
+    {"key": "SkyscraperSolver",       "label": "Skyscraper"},
+    {"key": "SwordfishSolver",        "label": "Swordfish"},
+    {"key": "XYWingSolver",           "label": "XY-Wing"},
+    {"key": "XYZWingSolver",          "label": "XYZ-Wing"},
+    {"key": "UniqueRectangleSolver",  "label": "Unique Rectangle"},
 ]
 
 _pattern_number: int = None
@@ -33,11 +48,22 @@ def _init_board() -> None:
     game.initialize(mode="debug", pattern_number=_pattern_number)
     Solver(game).populate_candidates()
     _solvers = {
-        "NakedSingleSolver":   NakedSingleSolver(game),
-        "HiddenSingleSolver":  HiddenSingleSolver(game),
-        "PointingPairsSolver": PointingPairsSolver(game),
-        "NakedPairSolver":     NakedPairSolver(game),
-        "NakedTripleSolver":   NakedTripleSolver(game),
+        "NakedSingleSolver":      NakedSingleSolver(game),
+        "HiddenSingleSolver":     HiddenSingleSolver(game),
+        "PointingPairsSolver":    PointingPairsSolver(game),
+        "NakedPairSolver":        NakedPairSolver(game),
+        "NakedTripleSolver":      NakedTripleSolver(game),
+        "HiddenPairSolver":       HiddenPairSolver(game),
+        "HiddenTripleSolver":     HiddenTripleSolver(game),
+        "NakedQuadSolver":        NakedQuadSolver(game),
+        "BoxLineReductionSolver": BoxLineReductionSolver(game),
+        "XWingSolver":            XWingSolver(game),
+        "SimpleColoringSolver":   SimpleColoringSolver(game),
+        "SkyscraperSolver":       SkyscraperSolver(game),
+        "SwordfishSolver":        SwordfishSolver(game),
+        "XYWingSolver":           XYWingSolver(game),
+        "XYZWingSolver":          XYZWingSolver(game),
+        "UniqueRectangleSolver":  UniqueRectangleSolver(game),
     }
 
 
