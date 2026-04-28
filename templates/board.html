@@ -244,6 +244,197 @@
       min-height: 0;
     }
 
+    .help-entry h4 {
+      font-size: 1rem;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    .help-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 2px 8px;
+      margin-bottom: 8px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .help-entry p,
+    .help-entry ul {
+      margin-bottom: 10px;
+    }
+
+    .help-entry ul {
+      padding-left: 18px;
+    }
+
+    .help-entry li {
+      margin-bottom: 6px;
+    }
+
+    .help-diagram {
+      margin-top: 14px;
+      border: 1px solid #dbe3ee;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      padding: 10px;
+    }
+
+    .help-diagram-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .help-diagram-caption {
+      font-size: 0.72rem;
+      color: #475569;
+      margin-top: 8px;
+    }
+
+    .mini-grid {
+      display: grid;
+      gap: 6px;
+    }
+
+    .mini-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mini-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .mini-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .mini-grid.cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+    .mini-cell {
+      min-height: 50px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      padding: 6px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .mini-cell-label {
+      font-size: 0.62rem;
+      color: #64748b;
+      margin-bottom: 4px;
+      line-height: 1.1;
+    }
+
+    .mini-cell-main {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.2;
+    }
+
+    .mini-cell.focus {
+      background: #dbeafe;
+      border-color: #60a5fa;
+    }
+
+    .mini-cell.keep {
+      background: #dcfce7;
+      border-color: #4ade80;
+    }
+
+    .mini-cell.cut {
+      background: #fef3c7;
+      border-color: #f59e0b;
+    }
+
+    .mini-cell.pivot {
+      background: #e0e7ff;
+      border-color: #818cf8;
+    }
+
+    .mini-cell.wing {
+      background: #dcfce7;
+      border-color: #34d399;
+    }
+
+    .mini-cell.tip {
+      background: #e0f2fe;
+      border-color: #38bdf8;
+    }
+
+    .mini-cell.deadly {
+      background: #ffe4e6;
+      border-color: #fb7185;
+    }
+
+    .mini-cell.color-a {
+      background: #dbeafe;
+      border-color: #60a5fa;
+    }
+
+    .mini-cell.color-b {
+      background: #fde68a;
+      border-color: #f59e0b;
+    }
+
+    .mini-cell.muted {
+      opacity: 0.6;
+    }
+
+    .mini-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .mini-legend span {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .mini-legend .focus,
+    .mini-legend .color-a {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .mini-legend .keep,
+    .mini-legend .wing {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .mini-legend .cut,
+    .mini-legend .color-b {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .mini-legend .pivot {
+      background: #e0e7ff;
+      color: #4338ca;
+    }
+
+    .mini-legend .tip {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .mini-legend .deadly {
+      background: #ffe4e6;
+      color: #be123c;
+    }
+
     /* ── Status ────────────────────────────────────────── */
     #status-header {
       font-size: 0.85rem;
@@ -486,137 +677,531 @@
     'solving techniques one step at a time — each technique either places a ' +
     'digit directly into a cell or eliminates candidates to narrow down ' +
     'possibilities. Click the <strong>?</strong> button next to any technique ' +
-    'to learn how it works.';
+    'to see a fuller explanation, a quick checklist, and a small diagram.';
+
+  function buildHelp(title, badge, paragraphs, bullets, diagramHtml) {
+    return `
+      <div class="help-entry">
+        <div class="help-badge">${badge}</div>
+        <h4>${title}</h4>
+        ${paragraphs.map(text => `<p>${text}</p>`).join('')}
+        <ul>${bullets.map(text => `<li>${text}</li>`).join('')}</ul>
+        ${diagramHtml}
+      </div>
+    `;
+  }
+
+  function cell(label, main, cls = '') {
+    return `
+      <div class="mini-cell ${cls}">
+        <div class="mini-cell-label">${label}</div>
+        <div class="mini-cell-main">${main}</div>
+      </div>
+    `;
+  }
+
+  function diagram(title, cols, cells, legend = [], caption = '') {
+    return `
+      <div class="help-diagram">
+        <div class="help-diagram-title">${title}</div>
+        <div class="mini-grid cols-${cols}">
+          ${cells.join('')}
+        </div>
+        ${caption ? `<div class="help-diagram-caption">${caption}</div>` : ''}
+        ${legend.length ? `
+          <div class="mini-legend">
+            ${legend.map(item => `<span class="${item.cls || ''}">${item.label}</span>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
 
   const HELP_TEXTS = {
-    'NakedSingleSolver':
-      '<strong>Naked Singles</strong><br><br>' +
-      'A naked single is the simplest solving technique. When a cell has only ' +
-      'one remaining candidate, that digit must go there — all other digits are ' +
-      'already present in the cell\'s row, column, or 3×3 box, leaving exactly ' +
-      'one possibility. The solver scans every empty cell and places the value ' +
-      'wherever only one candidate remains.',
+    'NakedSingleSolver': buildHelp(
+      'Naked Singles',
+      'Placer',
+      [
+        'A naked single appears when candidate elimination has already reduced one unsolved cell down to a single possible digit. At that point there is no branching left: the cell is forced.',
+        'This is a cell-based pattern. You do not need to compare the cell to every other location in the row, column, or box. If the cell itself has only one candidate, that candidate must be written in immediately.'
+      ],
+      [
+        'Look for an unsolved cell whose candidate list has length 1.',
+        'Why it works: every other digit has already been blocked by a peer in the same row, column, or box.',
+        'What happens next: place the remaining digit, then remove it from all peer candidates.'
+      ],
+      diagram(
+        'Example',
+        3,
+        [
+          cell('r4c4', '4', 'muted'),
+          cell('r4c5', '{8}', 'keep'),
+          cell('r4c6', '1', 'muted')
+        ],
+        [
+          { label: 'forced cell', cls: 'keep' }
+        ],
+        'Only 8 remains in r4c5, so the solver can place 8 there immediately.'
+      )
+    ),
 
-    'HiddenSingleSolver':
-      '<strong>Hidden Singles</strong><br><br>' +
-      'A hidden single occurs when a digit can only fit in one cell within a ' +
-      'row, column, or 3×3 box — even if that cell appears to have multiple ' +
-      'candidates. The digit is "hidden" among others, but every other position ' +
-      'in the unit is already ruled out. The solver checks each unit for digits ' +
-      'that appear in exactly one candidate list and places them there.',
+    'HiddenSingleSolver': buildHelp(
+      'Hidden Singles',
+      'Placer',
+      [
+        'A hidden single is found by scanning an entire unit rather than staring at one cell. A digit may still be mixed in with other candidates, but if it appears in only one position in a row, column, or box, that position is forced.',
+        'The digit is "hidden" because the target cell might still look messy. What matters is not how many candidates the cell has, but that every other location for that specific digit inside the unit has already been ruled out.'
+      ],
+      [
+        'Look for a digit that appears only once across all candidate lists in one row, column, or box.',
+        'Why it works: the unit must contain that digit somewhere, and there is only one legal location left.',
+        'What happens next: place the hidden digit even if the cell still shows extra candidates.'
+      ],
+      diagram(
+        'Row Scan',
+        4,
+        [
+          cell('r6c1', '{1,3}', 'muted'),
+          cell('r6c2', '{2,7,9}', 'focus'),
+          cell('r6c3', '{3,8}', 'muted'),
+          cell('r6c4', '{1,5,9}', 'muted')
+        ],
+        [
+          { label: 'only place for 7', cls: 'focus' }
+        ],
+        'Candidate 7 appears only in r6c2 within this row, so 7 is placed there.'
+      )
+    ),
 
-    'PointingPairsSolver':
-      '<strong>Pointing Pairs</strong><br><br>' +
-      'Within a 3×3 box, if a candidate digit only appears in cells that all ' +
-      'share the same row or column, it must end up in one of those cells. That ' +
-      'means the digit can be safely eliminated from every other cell in that ' +
-      'row or column that lies outside the box. This works for 2-cell pairs and ' +
-      '3-cell triples alike.',
+    'PointingPairsSolver': buildHelp(
+      'Pointing Pairs',
+      'Eliminator',
+      [
+        'Pointing pairs and pointing triples use information from a 3x3 box to attack a row or column. If every candidate for one digit inside the box sits on the same line, the digit must be placed on that line somewhere inside the box.',
+        'Because of that, the same digit cannot also appear elsewhere on the shared row or column outside the box. The pattern is called a pair when two cells are involved and a triple when three cells are involved.'
+      ],
+      [
+        'Look for one digit in a single box that is confined to one row or one column.',
+        'Why it works: the box has already claimed that digit for the highlighted line segment.',
+        'What happens next: eliminate that digit from the rest of the same row or column outside the box.'
+      ],
+      diagram(
+        'Box Forces A Row',
+        5,
+        [
+          cell('box r2c1', '{5,7}', 'focus'),
+          cell('box r2c2', '{5,9}', 'focus'),
+          cell('box r2c3', '{1,4}', 'muted'),
+          cell('r2c5', '5', 'cut'),
+          cell('r2c8', '5', 'cut')
+        ],
+        [
+          { label: 'inside box', cls: 'focus' },
+          { label: 'eliminate outside box', cls: 'cut' }
+        ],
+        'Inside the box, candidate 5 only appears on row 2, so every other 5 on row 2 outside the box can be removed.'
+      )
+    ),
 
-    'NakedPairSolver':
-      '<strong>Naked Pairs</strong><br><br>' +
-      'When exactly two cells in the same row, column, or 3×3 box each contain ' +
-      'the same two candidates — and only those two — those two digits must ' +
-      'occupy those two cells in some order. Every other cell in the shared unit ' +
-      'can therefore have both of those candidates removed.',
+    'NakedPairSolver': buildHelp(
+      'Naked Pairs',
+      'Eliminator',
+      [
+        'A naked pair occurs when two cells in the same unit contain exactly the same two candidates and no others. Those two digits must occupy those two cells in some order.',
+        'Once that pair is identified, the two digits are locked away from the rest of the unit. Any other cell in the same row, column, or box can safely drop those candidates.'
+      ],
+      [
+        'Look for two cells in one unit that both read exactly the same pair, such as {3,8} and {3,8}.',
+        'Why it works: the pair consumes both digits, leaving no room for them elsewhere in the unit.',
+        'What happens next: remove both digits from every other peer in that unit.'
+      ],
+      diagram(
+        'Row Example',
+        4,
+        [
+          cell('r5c2', '{3,8}', 'keep'),
+          cell('r5c6', '{3,8}', 'keep'),
+          cell('r5c7', '{1,3,8}', 'cut'),
+          cell('r5c9', '{3,5,8}', 'cut')
+        ],
+        [
+          { label: 'locked pair', cls: 'keep' },
+          { label: 'remove 3 and 8', cls: 'cut' }
+        ],
+        'Since the pair must occupy r5c2 and r5c6, other cells in the row cannot keep 3 or 8.'
+      )
+    ),
 
-    'NakedTripleSolver':
-      '<strong>Naked Triples</strong><br><br>' +
-      'Like Naked Pairs but extended to three cells. If three cells in a unit ' +
-      'collectively contain only three distinct candidates (each cell holding ' +
-      '2 or 3 of those three digits), those digits are locked inside those ' +
-      'three cells. All other cells in the same unit can have those three ' +
-      'candidates eliminated.',
+    'NakedTripleSolver': buildHelp(
+      'Naked Triples',
+      'Eliminator',
+      [
+        'A naked triple is the three-cell version of a naked pair. Three cells in one unit collectively use only three digits, though each cell may show two or all three of them.',
+        'Those digits are therefore trapped inside the triple. Every other cell in the unit must use something else, so the triple digits can be stripped away from the remaining peers.'
+      ],
+      [
+        'Look for three cells whose combined candidates collapse to exactly three digits, such as {1,4}, {1,7}, and {4,7}.',
+        'Why it works: the three highlighted cells must absorb digits 1, 4, and 7 in some arrangement.',
+        'What happens next: eliminate those three digits from every other cell in the same unit.'
+      ],
+      diagram(
+        'Triple In One Unit',
+        5,
+        [
+          cell('r3c1', '{1,4}', 'keep'),
+          cell('r3c4', '{1,7}', 'keep'),
+          cell('r3c8', '{4,7}', 'keep'),
+          cell('r3c6', '{1,2,4,7}', 'cut'),
+          cell('r3c9', '{4,6,7}', 'cut')
+        ],
+        [
+          { label: 'locked triple', cls: 'keep' },
+          { label: 'remove triple digits', cls: 'cut' }
+        ],
+        'Digits 1, 4, and 7 are confined to the three highlighted cells, so they disappear elsewhere in the row.'
+      )
+    ),
 
-    'HiddenPairSolver':
-      '<strong>Hidden Pairs</strong><br><br>' +
-      'If two digits appear as candidates in only two cells within a unit ' +
-      '(row, column, or box), those two digits must occupy those two cells ' +
-      'in some order — even though the cells may appear to have many candidates. ' +
-      'All other candidates can be removed from those two cells, leaving them ' +
-      'as a naked pair.',
+    'HiddenPairSolver': buildHelp(
+      'Hidden Pairs',
+      'Eliminator',
+      [
+        'A hidden pair is discovered by tracking where specific digits can go inside a unit. If two digits appear only in the same two cells, then those two cells must contain those digits somehow.',
+        'The pair is "hidden" because the cells may currently contain extra candidates. Once the pattern is found, those extras can be removed and the cells are reduced to a clean naked pair.'
+      ],
+      [
+        'Look for two digits that each appear in exactly the same two cells within one row, column, or box.',
+        'Why it works: the unit still needs both digits, and only those two cells can supply them.',
+        'What happens next: trim every other candidate from the two highlighted cells.'
+      ],
+      diagram(
+        'Only Two Homes',
+        4,
+        [
+          cell('r8c2', '{2,5,9}', 'focus'),
+          cell('r8c5', '{1,2,7,9}', 'focus'),
+          cell('r8c6', '{1,5,7}', 'muted'),
+          cell('r8c9', '{3,4,6}', 'muted')
+        ],
+        [
+          { label: 'keep 2 and 9 only', cls: 'focus' }
+        ],
+        'Digits 2 and 9 appear only in the two highlighted cells, so the extra candidates there are removed.'
+      )
+    ),
 
-    'HiddenTripleSolver':
-      '<strong>Hidden Triples</strong><br><br>' +
-      'Like Hidden Pairs extended to three digits. If three digits are ' +
-      'collectively confined to only three cells within a unit, those three ' +
-      'cells must contain those three digits. Every other candidate in those ' +
-      'three cells can be eliminated.',
+    'HiddenTripleSolver': buildHelp(
+      'Hidden Triples',
+      'Eliminator',
+      [
+        'A hidden triple extends the same idea to three digits. When three digits can only be placed in three cells of one unit, those cells must contain the triple, even if each cell currently shows extra clutter.',
+        'After spotting the pattern, the solver keeps only the triple digits in those cells. This often exposes a follow-up naked pair, naked single, or another elimination immediately afterward.'
+      ],
+      [
+        'Look for three digits whose candidate positions are collectively limited to exactly three cells in one unit.',
+        'Why it works: those three digits must occupy those three cells in some order.',
+        'What happens next: remove all non-triple candidates from the highlighted cells.'
+      ],
+      diagram(
+        'Triple Hidden In A Row',
+        5,
+        [
+          cell('r1c2', '{1,3,5,7}', 'focus'),
+          cell('r1c4', '{2,3,5,8}', 'focus'),
+          cell('r1c7', '{3,5,6,7}', 'focus'),
+          cell('r1c8', '{1,2,8}', 'muted'),
+          cell('r1c9', '{4,6,9}', 'muted')
+        ],
+        [
+          { label: 'keep 3, 5, 7', cls: 'focus' }
+        ],
+        'If digits 3, 5, and 7 only occur in the three highlighted cells, every extra candidate in those cells can be deleted.'
+      )
+    ),
 
-    'NakedQuadSolver':
-      '<strong>Naked Quads</strong><br><br>' +
-      'When four cells in a unit collectively contain only four distinct ' +
-      'candidates (each cell holding between 2 and 4 of those digits), ' +
-      'those four digits are locked into those four cells. All other cells ' +
-      'in the same unit can have those four candidates removed.',
+    'NakedQuadSolver': buildHelp(
+      'Naked Quads',
+      'Eliminator',
+      [
+        'A naked quad works just like a pair or triple, but with four cells and four digits. The pattern is rarer, yet it follows the same logic: the four digits are locked into four positions inside one unit.',
+        'Because all four digits must be consumed by those four cells, no other cell in the unit is allowed to keep any of them.'
+      ],
+      [
+        'Look for four cells whose combined candidates contain exactly four distinct digits.',
+        'Why it works: those four cells fully reserve the four digits among themselves.',
+        'What happens next: eliminate the quad digits from every other cell in the same unit.'
+      ],
+      diagram(
+        'Quad Lock',
+        5,
+        [
+          cell('r7c1', '{1,3}', 'keep'),
+          cell('r7c3', '{1,6}', 'keep'),
+          cell('r7c6', '{3,8}', 'keep'),
+          cell('r7c8', '{6,8}', 'keep'),
+          cell('r7c9', '{1,3,6,8,9}', 'cut')
+        ],
+        [
+          { label: 'locked quad', cls: 'keep' },
+          { label: 'remove quad digits', cls: 'cut' }
+        ],
+        'Digits 1, 3, 6, and 8 are confined to the first four cells, so r7c9 cannot keep any of them.'
+      )
+    ),
 
-    'BoxLineReductionSolver':
-      '<strong>Box/Line Reduction</strong><br><br>' +
-      'The complement of Pointing Pairs. If a candidate in a row or column ' +
-      'only appears inside a single 3×3 box, that digit is claimed by the ' +
-      'box — it can be eliminated from all other cells in that box that are ' +
-      'not part of the original row or column.',
+    'BoxLineReductionSolver': buildHelp(
+      'Box/Line Reduction',
+      'Eliminator',
+      [
+        'Box/line reduction is the mirror image of pointing pairs. Instead of using a box to restrict a line, it uses a line to restrict a box.',
+        'If all candidates for a digit in one row or column happen to lie inside the same 3x3 box, then the box has no freedom left to place that digit anywhere else. The remaining cells of the box can drop it.'
+      ],
+      [
+        'Look for a digit whose candidates in one row or column are all contained within a single box.',
+        'Why it works: the line has already claimed every legal spot for that digit inside the box.',
+        'What happens next: eliminate the digit from the other cells of that box outside the original row or column.'
+      ],
+      diagram(
+        'Line Forces A Box',
+        5,
+        [
+          cell('r4c4', '{4,6}', 'focus'),
+          cell('r4c5', '{1,4}', 'focus'),
+          cell('r4c8', '{2,8}', 'muted'),
+          cell('r5c6', '4', 'cut'),
+          cell('r6c4', '4', 'cut')
+        ],
+        [
+          { label: 'same row inside box', cls: 'focus' },
+          { label: 'remove elsewhere in box', cls: 'cut' }
+        ],
+        'On row 4, candidate 4 only appears inside one box, so other cells in that box cannot keep 4.'
+      )
+    ),
 
-    'XWingSolver':
-      '<strong>X-Wing</strong><br><br>' +
-      'When a candidate appears in exactly two cells in each of two rows, and ' +
-      'both rows share the same two columns, the digit must land in one of ' +
-      'those two columns — so it can be eliminated from everywhere else in ' +
-      'those two columns. The same logic applies with rows and columns swapped.',
+    'XWingSolver': buildHelp(
+      'X-Wing',
+      'Eliminator',
+      [
+        'An X-Wing is a rectangle formed by two rows and two columns for the same candidate. Each of the two rows must have exactly two positions for that digit, and those positions must line up in the same columns.',
+        'That alignment means the digit must occupy one of the two corners in the first row and one of the two corners in the second row. As a result, every other candidate for that digit in the shared columns becomes impossible. The same logic also works with rows and columns swapped.'
+      ],
+      [
+        'Look for two rows with the same candidate appearing in exactly the same two columns.',
+        'Why it works: the two rows force the digit into the rectangle corners, locking the columns.',
+        'What happens next: remove that candidate from all other cells in the two matching columns.'
+      ],
+      diagram(
+        'Rectangle Pattern',
+        3,
+        [
+          cell('r2c3', '6', 'focus'),
+          cell('r2c8', '6', 'focus'),
+          cell('col 3', '6', 'cut'),
+          cell('r7c3', '6', 'focus'),
+          cell('r7c8', '6', 'focus'),
+          cell('col 8', '6', 'cut')
+        ],
+        [
+          { label: 'X-Wing corners', cls: 'focus' },
+          { label: 'eliminate in columns', cls: 'cut' }
+        ],
+        'Rows 2 and 7 lock candidate 6 into columns 3 and 8, so other 6s in those columns can be removed.'
+      )
+    ),
 
-    'SimpleColoringSolver':
-      '<strong>Simple Coloring</strong><br><br>' +
-      'Chains conjugate pairs — units where a candidate appears exactly twice — ' +
-      'and assigns alternating colors. One color must be correct, the other wrong. ' +
-      'If two same-color cells share a unit, that color is impossible and all its ' +
-      'cells are eliminated. Any cell outside the chain that sees both colors can ' +
-      'also have the candidate removed.',
+    'SimpleColoringSolver': buildHelp(
+      'Simple Coloring',
+      'Eliminator',
+      [
+        'Simple coloring starts from conjugate pairs: units where a candidate appears exactly twice. If one of those two cells is false, the other must be true, so you can alternate two colors along the chain.',
+        'Once a chain is built, two common deductions become available. If two cells of the same color see each other, that entire color is impossible. Or if an outside cell sees both colors, it cannot contain the candidate because one of the colors must eventually be true.'
+      ],
+      [
+        'Look for chains built from strong links, where a candidate appears exactly twice in a unit.',
+        'Why it works: alternating colors represent opposite truth values across the chain.',
+        'What happens next: eliminate a bad color, or eliminate the candidate from any cell that sees both colors.'
+      ],
+      diagram(
+        'Alternating Chain',
+        5,
+        [
+          cell('r1c2', '9', 'color-a'),
+          cell('r1c8', '9', 'color-b'),
+          cell('r5c8', '9', 'color-a'),
+          cell('r5c3', '9', 'color-b'),
+          cell('r3c3', '9', 'cut')
+        ],
+        [
+          { label: 'color A', cls: 'color-a' },
+          { label: 'color B', cls: 'color-b' },
+          { label: 'sees both colors', cls: 'cut' }
+        ],
+        'If r3c3 sees one blue cell and one gold cell, it cannot keep 9 because one color must be true.'
+      )
+    ),
 
-    'SkyscraperSolver':
-      '<strong>Skyscraper</strong><br><br>' +
-      'Two rows each have exactly two occurrences of a candidate and share ' +
-      'exactly one column (the "leg"). The two non-shared cells are the tips. ' +
-      'One of the tips must contain the digit, so any cell that sees both tips ' +
-      'can have the candidate eliminated. The same logic applies column-wise.',
+    'SkyscraperSolver': buildHelp(
+      'Skyscraper',
+      'Eliminator',
+      [
+        'A skyscraper is a compact chain pattern built from two rows or two columns. For one candidate, each selected row must contain exactly two possible cells, and the rows share one common column. The shared cells act like the building legs; the two unmatched cells are the tips.',
+        'Because each row still needs one copy of the candidate, at least one tip must be true. Any cell that can see both tips is therefore impossible for that candidate.'
+      ],
+      [
+        'Look for two rows or columns with two candidate positions each and exactly one shared line.',
+        'Why it works: if one tip is false, the row forces the other tip true; one of the tips must win.',
+        'What happens next: eliminate the candidate from any cell that sees both tips.'
+      ],
+      diagram(
+        'Two Legs, Two Tips',
+        5,
+        [
+          cell('r2c3', '4', 'focus'),
+          cell('r2c8', '4', 'tip'),
+          cell('r7c3', '4', 'focus'),
+          cell('r7c6', '4', 'tip'),
+          cell('common peer', '4', 'cut')
+        ],
+        [
+          { label: 'shared leg', cls: 'focus' },
+          { label: 'tip', cls: 'tip' },
+          { label: 'sees both tips', cls: 'cut' }
+        ],
+        'One of the two tips must contain 4, so a cell that sees both tips cannot also be 4.'
+      )
+    ),
 
-    'SwordfishSolver':
-      '<strong>Swordfish</strong><br><br>' +
-      'An extension of X-Wing to three rows. If a candidate appears 2–3 times ' +
-      'in each of three rows and their combined column positions cover exactly ' +
-      'three columns, the digit must land in those columns — so it can be ' +
-      'eliminated from those columns in all other rows. Also applies with rows ' +
-      'and columns swapped.',
+    'SwordfishSolver': buildHelp(
+      'Swordfish',
+      'Eliminator',
+      [
+        'Swordfish is the three-line extension of X-Wing. For one digit, you look for three rows whose candidates occupy only the same three columns in total, or three columns whose candidates occupy only the same three rows.',
+        'That limited footprint means the digit must be placed somewhere inside those three intersections. Therefore the same candidate can be removed from the shared columns outside the three chosen rows, or vice versa.'
+      ],
+      [
+        'Look for three rows or columns whose candidate positions collapse to exactly three shared lines.',
+        'Why it works: the digit is locked into the 3x3 line framework formed by those intersections.',
+        'What happens next: eliminate the candidate from the shared columns or rows everywhere else.'
+      ],
+      diagram(
+        'Three-Line Net',
+        3,
+        [
+          cell('row 1', 'c2 c5 c8', 'focus'),
+          cell('row 4', 'c2 c5', 'focus'),
+          cell('row 7', 'c5 c8', 'focus'),
+          cell('col 2', 'remove', 'cut'),
+          cell('col 5', 'remove', 'cut'),
+          cell('col 8', 'remove', 'cut')
+        ],
+        [
+          { label: 'swordfish rows', cls: 'focus' },
+          { label: 'eliminate outside rows', cls: 'cut' }
+        ],
+        'Rows 1, 4, and 7 restrict the digit to columns 2, 5, and 8, so other copies in those columns can be cleared.'
+      )
+    ),
 
-    'XYWingSolver':
-      '<strong>XY-Wing</strong><br><br>' +
-      'A pivot cell with two candidates {X, Y} sees one wing with {X, Z} and ' +
-      'another wing with {Y, Z}. Whatever value the pivot takes, Z is forced ' +
-      'into one of the wings — so Z can be eliminated from any cell that sees ' +
-      'both wings simultaneously.',
+    'XYWingSolver': buildHelp(
+      'XY-Wing',
+      'Eliminator',
+      [
+        'An XY-Wing uses three bivalue cells. The pivot contains {X,Y}, one wing contains {X,Z}, and the other contains {Y,Z}. Both wings must see the pivot, but the wings do not need to see each other.',
+        'No matter which value the pivot takes, one wing is forced to take Z. That means any cell that sees both wings cannot also contain Z.'
+      ],
+      [
+        'Look for a pivot with two candidates and two linked wings that each share one pivot digit plus a common third digit.',
+        'Why it works: whichever pivot value is chosen, Z is pushed into one of the wings.',
+        'What happens next: remove Z from any cell that sees both wings.'
+      ],
+      diagram(
+        'Pivot And Wings',
+        4,
+        [
+          cell('pivot', '{X,Y}', 'pivot'),
+          cell('wing 1', '{X,Z}', 'wing'),
+          cell('wing 2', '{Y,Z}', 'wing'),
+          cell('common peer', 'Z', 'cut')
+        ],
+        [
+          { label: 'pivot', cls: 'pivot' },
+          { label: 'wing', cls: 'wing' },
+          { label: 'remove Z', cls: 'cut' }
+        ],
+        'A common peer of both wings cannot keep Z, because one of the wings must end up as Z.'
+      )
+    ),
 
-    'XYZWingSolver':
-      '<strong>XYZ-Wing</strong><br><br>' +
-      'Like XY-Wing but the pivot has three candidates {X, Y, Z} instead of ' +
-      'two. The pivot sees wing {X, Z} and wing {Y, Z}. Because the pivot ' +
-      'itself could hold Z, the elimination is tighter: Z can only be removed ' +
-      'from cells that see all three of the pivot, wing1, and wing2.',
+    'XYZWingSolver': buildHelp(
+      'XYZ-Wing',
+      'Eliminator',
+      [
+        'An XYZ-Wing is a close relative of XY-Wing, but the pivot now contains three candidates: {X,Y,Z}. The two wings still contain {X,Z} and {Y,Z}, and both must see the pivot.',
+        'Since the pivot itself may also hold Z, the elimination zone becomes stricter. A cell must see the pivot and both wings before Z can be removed from it.'
+      ],
+      [
+        'Look for a three-candidate pivot linked to two bivalue wings sharing the same Z.',
+        'Why it works: either the pivot is Z, or one of the wings is forced to Z.',
+        'What happens next: remove Z from cells that see all three highlighted cells.'
+      ],
+      diagram(
+        'Tighter Wing Pattern',
+        4,
+        [
+          cell('pivot', '{X,Y,Z}', 'pivot'),
+          cell('wing 1', '{X,Z}', 'wing'),
+          cell('wing 2', '{Y,Z}', 'wing'),
+          cell('shared peer', 'Z', 'cut')
+        ],
+        [
+          { label: 'pivot', cls: 'pivot' },
+          { label: 'wing', cls: 'wing' },
+          { label: 'must see all three', cls: 'cut' }
+        ],
+        'Because Z is guaranteed among the pivot-or-wings set, a cell that sees all three cannot keep Z.'
+      )
+    ),
 
-    'UniqueRectangleSolver':
-      '<strong>Unique Rectangle</strong><br><br>' +
-      'Relies on the guarantee that a valid puzzle has exactly one solution. ' +
-      'If three corners of a 2×2 rectangle (spanning at least two boxes) contain ' +
-      'only the same two candidates, placing either digit in the fourth corner ' +
-      'would create a deadly pattern with two solutions. Both candidates are ' +
-      'therefore eliminated from the fourth corner.',
+    'UniqueRectangleSolver': buildHelp(
+      'Unique Rectangle',
+      'Eliminator',
+      [
+        'Unique Rectangle relies on the assumption that a proper Sudoku has exactly one solution. If four cells form a rectangle across two rows, two columns, and at least two boxes, then a repeated pair in all four corners can create a deadly two-solution pattern.',
+        'When three corners already contain only the same two digits, the fourth corner is not allowed to keep both of those digits as options. Otherwise the puzzle could split into two valid completions by swapping the pair.'
+      ],
+      [
+        'Look for a four-corner rectangle where three cells are already the same naked pair.',
+        'Why it works: leaving the same pair in the fourth corner would create a non-unique deadly pattern.',
+        'What happens next: remove the deadly pair digits from the fourth cell, leaving only its extra candidate(s).'
+      ],
+      diagram(
+        'Avoid The Deadly Pattern',
+        4,
+        [
+          cell('r2c2', '{2,8}', 'deadly'),
+          cell('r2c8', '{2,8}', 'deadly'),
+          cell('r6c2', '{2,8}', 'deadly'),
+          cell('r6c8', '{2,8,5}', 'focus')
+        ],
+        [
+          { label: 'deadly pair corners', cls: 'deadly' },
+          { label: 'trim the fourth corner', cls: 'focus' }
+        ],
+        'Remove 2 and 8 from the fourth corner. Otherwise the rectangle could support two different solutions.'
+      )
+    ),
   };
 
   function showHelp(key) {
     document.getElementById('help-text').innerHTML = HELP_TEXTS[key] || DEFAULT_HELP_TEXT;
+    document.getElementById('help-text').scrollTop = 0;
     document.getElementById('help-close').style.display = 'flex';
   }
 
   function closeHelp() {
     document.getElementById('help-text').innerHTML = DEFAULT_HELP_TEXT;
+    document.getElementById('help-text').scrollTop = 0;
     document.getElementById('help-close').style.display = 'none';
   }
 
