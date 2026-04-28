@@ -1,3 +1,5 @@
+from . import patterns
+
 class Cell:
     def __init__(
         self,
@@ -7,7 +9,9 @@ class Cell:
         Defines the Cell class.
         """
         self.value = value
+        self.given = value != 0
         self.candidates = []
+        self.explain = ""
 
     
     def __repr__(
@@ -31,7 +35,8 @@ class Sudoku:
 
     def initialize(
         self, 
-        mode: str = 'production'
+        mode: str = 'production',
+        pattern_number: int = None
         ) -> None:
         """
         Initializes the Sudoku board based on the specified mode.
@@ -40,25 +45,20 @@ class Sudoku:
             mode (str): The mode to initialize the board in.
                         'production': Initializes the board with a random valid Sudoku puzzle.
                         'debug': Initializes the board with a test Sudoku puzzle.
+            pattern_number (int, optional): The pattern number to load when in debug mode.
         """
-        if not mode in ['production', 'debug']:
+        if mode not in ['production', 'debug']:
             raise ValueError("Invalid mode. Mode must be 'production' or 'debug'.")
 
         if mode == 'production':
             pass
         
-        elif mode == 'debug':
-            self.board = [
-                [Cell(0), Cell(0), Cell(0), Cell(0), Cell(1), Cell(7), Cell(0), Cell(0), Cell(3)],
-                [Cell(0), Cell(0), Cell(1), Cell(2), Cell(0), Cell(0), Cell(0), Cell(0), Cell(7)],
-                [Cell(2), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(5), Cell(6), Cell(0)],
-                [Cell(1), Cell(3), Cell(0), Cell(0), Cell(7), Cell(0), Cell(9), Cell(0), Cell(8)],
-                [Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(8), Cell(0), Cell(0), Cell(0)],
-                [Cell(7), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(4), Cell(0)],
-                [Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0), Cell(0)],
-                [Cell(0), Cell(8), Cell(0), Cell(0), Cell(4), Cell(3), Cell(6), Cell(0), Cell(0)],
-                [Cell(0), Cell(0), Cell(4), Cell(9), Cell(0), Cell(2), Cell(0), Cell(0), Cell(0)]
-            ]
+        if mode == 'debug':
+            if pattern_number is None or pattern_number not in patterns.patterns:
+                raise ValueError(f"Invalid pattern number. Available patterns: {list(patterns.patterns.keys())}")
+            
+            pattern = patterns.patterns[pattern_number]
+            self.board = [[Cell(val) for val in row] for row in pattern]
 
 
     def print_board(
@@ -165,4 +165,27 @@ class Sudoku:
                         return False
         
         if verbose: print("Valid board\n")
+        return True
+
+    def is_solved(
+        self,
+        verbose: bool = False
+        ) -> bool:
+        """
+        Checks if the Sudoku board is solved.
+
+        Returns:
+            bool: True if the board is solved, False otherwise.
+        """
+        if not self.is_valid():
+            if verbose: print("Board is not solved: Invalid board\n")
+            return False
+
+        for row in range(9):
+            for col in range(9):
+                if self.board[row][col].value == 0:
+                    if verbose: print("Board is not solved: Empty cell\n")
+                    return False
+
+        if verbose: print("Board is solved\n")
         return True

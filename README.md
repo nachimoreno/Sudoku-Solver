@@ -5,5 +5,5 @@ A Python-based Sudoku solver. This project provides a structured way to represen
 ## Algorithms
 
 - **Naked Singles**: Places numbers where only one candidate remains for a cell.
-- **Hidden Singles**: Places numbers where a candidate is the only one remaining for a row, column, or grid.
+- **Hidden Singles**: Places numbers where a candidate has only one possible position in a row, column, or grid.
 - *Planned*: Hidden pairs/triples, naked pairs/triples, and more advanced techniques.
