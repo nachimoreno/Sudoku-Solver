@@ -35,7 +35,7 @@
       gap: 28px;
       width: 100%;
       max-width: 900px;
-      align-items: flex-start;
+      align-items: stretch;
     }
 
     /* ── Board ─────────────────────────────────────────── */
@@ -104,6 +104,22 @@
       flex-direction: column;
       gap: 14px;
       min-width: 220px;
+      min-height: 0;
+    }
+
+    .eliminators-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .eliminators-card h3 { flex-shrink: 0; }
+
+    .eliminators-card .btn-group {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
     }
 
     .card {
@@ -179,6 +195,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
+      flex-shrink: 0;
     }
 
     .help-close {
@@ -200,16 +217,31 @@
 
     .help-close:hover { background: #cbd5e1; color: #1a1a2e; }
 
-    .help-panel {
+    /* ── Bottom info row ──────────────────────────────── */
+    .bottom-row {
+      display: flex;
+      gap: 28px;
       width: 100%;
       max-width: 900px;
       margin-top: 20px;
+      height: 190px;
+    }
+
+    .bottom-row > .card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
     }
 
     #help-text {
       font-size: 0.8rem;
       line-height: 1.65;
       color: #444;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
     }
 
     /* ── Status ────────────────────────────────────────── */
@@ -218,13 +250,15 @@
       font-weight: 600;
       margin-bottom: 8px;
       color: #1a1a2e;
+      flex-shrink: 0;
     }
 
     #status-log {
-      max-height: 220px;
       overflow-y: auto;
       font-size: 0.78rem;
       line-height: 1.7;
+      flex: 1;
+      min-height: 0;
     }
 
     .log-placed     { color: #15803d; }
@@ -236,12 +270,14 @@
       display: none;
       background: #dcfce7;
       border: 1.5px solid #86efac;
-      border-radius: 8px;
-      padding: 11px 16px;
-      font-size: 0.875rem;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #15803d;
       text-align: center;
+      flex-shrink: 0;
+      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -272,7 +308,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card eliminators-card">
       <h3>Eliminators</h3>
       <div class="btn-group">
         {% for s in eliminators %}
@@ -285,22 +321,23 @@
       </div>
     </div>
 
-    <div class="card">
-      <div id="status-header">Ready — make a move.</div>
-      <div id="status-log"></div>
-    </div>
-
-    <div id="solved-banner">✓ Puzzle solved!</div>
-
   </div>
 </div>
 
-<div class="card help-panel">
-  <div class="help-card-header">
-    <h3>How does it work?</h3>
-    <button class="help-close" id="help-close" onclick="closeHelp()" style="display:none" title="Back to overview">✕</button>
+<div class="bottom-row">
+  <div class="card">
+    <div class="help-card-header">
+      <h3>How does it work?</h3>
+      <button class="help-close" id="help-close" onclick="closeHelp()" style="display:none" title="Back to overview">✕</button>
+    </div>
+    <div id="help-text"></div>
   </div>
-  <div id="help-text"></div>
+
+  <div class="card">
+    <div id="status-header">Ready — make a move.</div>
+    <div id="solved-banner">✓ Puzzle solved!</div>
+    <div id="status-log"></div>
+  </div>
 </div>
 
 <script>
@@ -585,8 +622,16 @@
 
   // ── Init ─────────────────────────────────────────────────────────────────
 
+  // Pin the controls column to the board's actual rendered height so the
+  // eliminators list scrolls rather than pushing the column taller.
+  function syncControlsHeight() {
+    document.querySelector('.controls').style.height =
+      document.getElementById('board').offsetHeight + 'px';
+  }
+
   renderBoard({{ board_json | tojson }}, []);
   document.getElementById('help-text').innerHTML = DEFAULT_HELP_TEXT;
+  syncControlsHeight();
 </script>
 
 </body>
