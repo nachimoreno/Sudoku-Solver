@@ -4,7 +4,7 @@ A Python Sudoku solver with an interactive Flask web UI and a step-by-step demo 
 
 ## Overview
 
-This project models a Sudoku board, generates candidate lists for unsolved cells, and applies a growing set of solving strategies to place values or eliminate candidates. It is currently designed around built-in debug puzzles rather than free-form puzzle input.
+This project models a Sudoku board, generates candidate lists for unsolved cells, and applies a growing set of solving strategies to place values or eliminate candidates. It supports built-in debug puzzles as well as extracting Sudoku boards from screenshots (currently limited to New York Times Sudoku).
 
 ## Features
 
@@ -13,6 +13,7 @@ This project models a Sudoku board, generates candidate lists for unsolved cells
 - HTML board rendering with candidate display and move highlighting
 - CLI demo flow for walking through solver progress in the browser
 - Multiple built-in Sudoku test patterns for debugging and experimentation
+- Computer vision integration to upload and extract Sudoku boards from screenshots (NYT Sudoku only)
 
 ## Implemented Techniques
 
@@ -52,7 +53,8 @@ This project models a Sudoku board, generates candidate lists for unsolved cells
     |-- solver.py          # Solver strategies
     |-- loop.py            # Demo solve loop
     |-- visualizer.py      # HTML board renderer
-    `-- patterns.py        # Built-in debug puzzles
+    |-- patterns.py        # Built-in debug puzzles
+    `-- nyt_screenshot_ingestion.py # CV module for extracting NYT Sudoku boards
 ```
 
 ## Installation
@@ -104,7 +106,7 @@ mkdir -p outputs
 
 ## Current Limitations
 
-- Puzzle input is currently limited to the predefined patterns in [`src/patterns.py`](src/patterns.py).
+- Puzzle input is currently limited to the predefined patterns in [`src/patterns.py`](src/patterns.py) and New York Times Sudoku screenshots.
 - `Sudoku.initialize(mode="production")` is not implemented yet.
 - The project currently focuses on local usage and experimentation rather than packaging or deployment.
 

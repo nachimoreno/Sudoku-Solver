@@ -36,7 +36,8 @@ class Sudoku:
     def initialize(
         self, 
         mode: str = 'production',
-        pattern_number: int = None
+        pattern_number: int = None,
+        board_data: list = None
         ) -> None:
         """
         Initializes the Sudoku board based on the specified mode.
@@ -45,10 +46,12 @@ class Sudoku:
             mode (str): The mode to initialize the board in.
                         'production': Initializes the board with a random valid Sudoku puzzle.
                         'debug': Initializes the board with a test Sudoku puzzle.
+                        'custom': Initializes the board with a custom 2D list of dicts.
             pattern_number (int, optional): The pattern number to load when in debug mode.
+            board_data (list, optional): The 2D list of dicts containing values and candidates.
         """
-        if mode not in ['production', 'debug']:
-            raise ValueError("Invalid mode. Mode must be 'production' or 'debug'.")
+        if mode not in ['production', 'debug', 'custom']:
+            raise ValueError("Invalid mode. Mode must be 'production', 'debug', or 'custom'.")
 
         if mode == 'production':
             pass
@@ -59,6 +62,16 @@ class Sudoku:
             
             pattern = patterns.patterns[pattern_number]
             self.board = [[Cell(val) for val in row] for row in pattern]
+            
+        if mode == 'custom':
+            if board_data is None:
+                raise ValueError("board_data must be provided in custom mode.")
+            for row in range(9):
+                for col in range(9):
+                    data = board_data[row][col]
+                    cell = Cell(data.get("value", 0))
+                    cell.candidates = data.get("candidates", [])
+                    self.board[row][col] = cell
 
 
     def print_board(

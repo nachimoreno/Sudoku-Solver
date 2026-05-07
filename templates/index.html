@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudoku Solver — Home</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 20px;
+      color: #1a1a2e;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+    h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 24px; color: #1a1a2e; }
+    p { color: #64748b; margin-bottom: 24px; line-height: 1.5; }
+    .form-group { margin-bottom: 24px; text-align: left; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 8px; }
+    select, input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: #1e293b;
+      background: #f8fafc;
+      transition: border-color 0.2s;
+    }
+    select:focus, input[type="file"]:focus { border-color: #3b82f6; outline: none; }
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover { background: #2563eb; }
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 24px 0;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    .divider:not(:empty)::before { margin-right: .5em; }
+    .divider:not(:empty)::after { margin-left: .5em; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Sudoku Solver</h1>
+    <p>Select a pre-configured pattern or upload a screenshot of a Sudoku board to begin solving.</p>
+    
+    <form action="/load" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="pattern">Option A: Select a Pattern</label>
+        <select name="pattern" id="pattern">
+          <option value="">-- Choose a pattern --</option>
+          {% for p_id in patterns %}
+          <option value="{{ p_id }}">Pattern {{ p_id }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="divider">OR</div>
+
+      <div class="form-group">
+        <label for="screenshot">Option B: Upload a NYT Screenshot</label>
+        <input type="file" name="screenshot" id="screenshot" accept="image/png, image/jpeg, image/webp">
+      </div>
+
+      <button type="submit" class="btn-submit">Start Solving</button>
+    </form>
+  </div>
+  
+  <script>
+    // UX enhancement: If file is selected, clear dropdown. If dropdown is selected, clear file.
+    const patternSelect = document.getElementById('pattern');
+    const screenshotInput = document.getElementById('screenshot');
+    
+    patternSelect.addEventListener('change', () => {
+      if (patternSelect.value) {
+        screenshotInput.value = '';
+      }
+    });
+    
+    screenshotInput.addEventListener('change', () => {
+      if (screenshotInput.files.length > 0) {
+        patternSelect.value = '';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -470,13 +470,24 @@
       flex-shrink: 0;
       margin-bottom: 6px;
     }
+
+    td.peer       { background: rgba(59, 130, 246, 0.07); }
+    td.same-value { background: rgba(59, 130, 246, 0.2); }
+    td.selected   {
+      outline: 3px solid rgba(59, 130, 246, 0.8);
+      outline-offset: -2px;
+      background: rgba(59, 130, 246, 0.15);
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Sudoku Solver <span>Pattern {{ pattern }}</span></h1>
-  <button class="btn-reset" id="reset-btn" onclick="resetBoard()">↺ Reset</button>
+  <h1>Sudoku Solver {% if pattern %}<span>Pattern {{ pattern }}</span>{% endif %}</h1>
+  <div style="display: flex; gap: 10px;">
+    <button class="btn-reset" onclick="populateCandidates()">Populate Candidates</button>
+    <button class="btn-reset" onclick="window.location.href='/'">New Game</button>
+  </div>
 </header>
 
 <div class="main">
@@ -540,10 +551,14 @@
   };
 
   let boardSolved = false;
+  let selectedCell = null;  // { row, col } or null
+  let currentBoard = null;  // last rendered board data
 
   // ── Render ────────────────────────────────────────────────────────────────
 
   function renderBoard(board, changes) {
+    currentBoard = board;
+    selectedCell = null;
     const placed     = new Set();
     const eliminated = new Set();
     if (changes) {
@@ -562,6 +577,7 @@
         const td   = document.createElement('td');
         td.dataset.row = row;
         td.dataset.col = col;
+        td.addEventListener('click', () => handleCellClick(row, col));
 
         if (col === 2 || col === 5) td.classList.add('box-right');
         if (row === 2 || row === 5) td.classList.add('box-bottom');
@@ -591,6 +607,114 @@
       table.appendChild(tr);
     }
   }
+
+  // ── Cell selection & manual input ────────────────────────────────────────
+
+  function clearHighlights() {
+    document.querySelectorAll('#board td').forEach(td => {
+      td.classList.remove('selected', 'peer', 'same-value');
+    });
+  }
+
+  function selectCell(row, col) {
+    clearHighlights();
+    selectedCell = { row, col };
+
+    const boxStartRow = Math.floor(row / 3) * 3;
+    const boxStartCol = Math.floor(col / 3) * 3;
+    const selectedValue = currentBoard ? currentBoard[row][col].value : 0;
+
+    document.querySelectorAll('#board td').forEach(td => {
+      const r = parseInt(td.dataset.row);
+      const c = parseInt(td.dataset.col);
+
+      if (r === row && c === col) { td.classList.add('selected'); return; }
+
+      const isPeer = r === row || c === col
+        || (Math.floor(r / 3) * 3 === boxStartRow && Math.floor(c / 3) * 3 === boxStartCol);
+      const cellValue = currentBoard ? currentBoard[r][c].value : 0;
+      const isSameValue = selectedValue !== 0 && cellValue === selectedValue;
+
+      if (isSameValue) td.classList.add('same-value');
+      else if (isPeer)  td.classList.add('peer');
+    });
+  }
+
+  function handleCellClick(row, col) {
+    if (boardSolved) return;
+    if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
+      clearHighlights();
+      selectedCell = null;
+      return;
+    }
+    selectCell(row, col);
+  }
+
+  function navigateCell(key) {
+    let { row, col } = selectedCell;
+    if (key === 'ArrowUp')    row = Math.max(0, row - 1);
+    if (key === 'ArrowDown')  row = Math.min(8, row + 1);
+    if (key === 'ArrowLeft')  col = Math.max(0, col - 1);
+    if (key === 'ArrowRight') col = Math.min(8, col + 1);
+    selectCell(row, col);
+  }
+
+  function restoreSelection(board) {
+    if (!selectedCell) return;
+    currentBoard = board;
+    const { row, col } = selectedCell;
+    selectCell(row, col);
+  }
+
+  async function setValue(row, col, digit) {
+    try {
+      const res  = await fetch('/set_value', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ row, col, value: digit }),
+      });
+      const data = await res.json();
+      if (data.error) return;
+      renderBoard(data.board, []);
+      selectedCell = { row, col };
+      restoreSelection(data.board);
+    } catch (e) { console.error(e); }
+  }
+
+  async function toggleCandidate(row, col, digit) {
+    try {
+      const res  = await fetch('/toggle_candidate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ row, col, digit }),
+      });
+      const data = await res.json();
+      if (data.error) return;
+      renderBoard(data.board, []);
+      selectedCell = { row, col };
+      restoreSelection(data.board);
+    } catch (e) { console.error(e); }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (!selectedCell || boardSolved) return;
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+      navigateCell(e.key);
+      return;
+    }
+
+    if (!e.code.startsWith('Digit')) return;
+    const digit = parseInt(e.code[5]);
+    if (digit < 1 || digit > 9) return;
+    e.preventDefault();
+    if (e.shiftKey) {
+      setValue(selectedCell.row, selectedCell.col, digit);
+    } else {
+      toggleCandidate(selectedCell.row, selectedCell.col, digit);
+    }
+  });
 
   // ── Status log ───────────────────────────────────────────────────────────
 
@@ -643,7 +767,6 @@
         boardSolved = true;
         document.getElementById('board').classList.add('solved-glow');
         document.getElementById('solved-banner').style.display = 'block';
-        document.getElementById('reset-btn').disabled = false;
       }
     } catch (e) {
       document.getElementById('status-header').textContent = 'Error — see console.';
@@ -653,18 +776,14 @@
     }
   }
 
-  async function resetBoard() {
+  async function populateCandidates() {
     try {
-      const res  = await fetch('/reset', { method: 'POST' });
+      const res  = await fetch('/populate_candidates', { method: 'POST' });
       const data = await res.json();
-      boardSolved = false;
+      if (data.error) return;
       renderBoard(data.board, []);
-      document.getElementById('status-header').textContent = 'Ready — make a move.';
+      document.getElementById('status-header').textContent = 'Candidates populated.';
       document.getElementById('status-log').innerHTML = '';
-      document.getElementById('board').classList.remove('solved-glow');
-      document.getElementById('solved-banner').style.display = 'none';
-      document.getElementById('reset-btn').disabled = false;
-      setSolverButtonsDisabled(false);
     } catch (e) {
       console.error(e);
     }
